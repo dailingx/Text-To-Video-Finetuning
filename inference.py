@@ -42,11 +42,17 @@ def vid2vid(
         pipeline, init_video, init_weight, prompt, negative_prompt, height, width, num_inference_steps, generator,
         guidance_scale
 ):
+    # 获取初始视频的帧数num_frames
     num_frames = init_video.shape[2]
+    # 将初始视频的形状由(b, c, f, h, w)转换为(b*f, c, h, w)，即将视频的每一帧作为一个样本
     init_video = rearrange(init_video, "b c f h w -> (b f) c h w")
+    # 将生成器模型赋值给管道对象中的生成器, 由GPU进行计算
     pipeline.generator = generator
+    # 使用管道对象中的VAE模型对初始视频进行编码，得到潜变量
     latents = pipeline.vae.encode(init_video).latent_dist.sample()
+    # 将潜变量的形状转换为(b, c, f, h, w)，恢复成原始视频的形状。
     latents = rearrange(latents, "(b f) c h w -> b c f h w", f=num_frames)
+    # 使用管道的调度器，对潜变量添加噪声，并根据训练时间步数和初始权重进行调整。
     latents = pipeline.scheduler.add_noise(
         original_samples=latents * 0.18215,
         noise=torch.randn_like(latents),
