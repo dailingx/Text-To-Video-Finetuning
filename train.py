@@ -119,8 +119,8 @@ def load_primary_models(pretrained_model_path):
     noise_scheduler = DDPMScheduler.from_config(pretrained_model_path, subfolder="scheduler")
     tokenizer = CLIPTokenizer.from_pretrained(pretrained_model_path, subfolder="tokenizer")
     print(f'when load_primary_models pretrained_model_path is {pretrained_model_path}')
-    text_encoder = CLIPTextModel.from_pretrained(pretrained_model_path, subfolder="text_encoder")
     vae = AutoencoderKL.from_pretrained(pretrained_model_path, subfolder="vae")
+    text_encoder = CLIPTextModel.from_pretrained(pretrained_model_path, subfolder="text_encoder")
     unet = UNet3DConditionModel.from_pretrained(pretrained_model_path, subfolder="unet")
 
     return noise_scheduler, tokenizer, text_encoder, vae, unet
